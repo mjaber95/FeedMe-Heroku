@@ -23,5 +23,5 @@ six>=1.14
 
 # interface
 streamlit
-snowflake-connector-python
 streamlit-modal
+
