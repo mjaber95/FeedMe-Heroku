@@ -10,10 +10,7 @@ seaborn>=0.11.0
 scikit-learn==1.1.1
 matplotlib>=3.2.2
 numpy>=1.18.5
-opencv-python>=4.1.1
-Pillow>=7.1.2
 PyYAML>=5.3.1
-requests>=2.23.0
 -f https://download.pytorch.org/whl/torch_stable.html
 torch==1.11.0+cpu
 
@@ -23,7 +20,6 @@ torch==1.11.0+cpu
 
 # utilities
 six>=1.14
-
 
 # interface
 streamlit
