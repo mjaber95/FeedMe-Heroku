@@ -16,20 +16,14 @@ PyYAML>=5.3.1
 requests>=2.23.0
 -f https://download.pytorch.org/whl/torch_stable.html
 torch==1.11.0+cpu
-tqdm>=4.41.0
+
 
 # tests/linter
-black
-coverage
-flake8
-pytest
-yapf
+
 
 # utilities
 six>=1.14
-joblib
-memoized-property
-termcolor
+
 
 # interface
 streamlit
