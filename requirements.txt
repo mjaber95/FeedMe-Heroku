@@ -16,12 +16,6 @@ torch==1.11.0+cpu
 opencv-python
 
 
-# tests/linter
-
-
-# utilities
-six>=1.14
-
 # interface
 streamlit
 streamlit-modal

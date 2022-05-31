@@ -128,7 +128,7 @@ def score(row, vector):
     return row
 
 def load_data(nrows):
-    data = pd.read_csv("/Users/mamdouhjaber/code/mjaber95/FeedMe/raw_data/Recipes/26052022_dataset.csv", nrows=nrows)
+    data = pd.read_csv("raw_data/3006_receipe_final.csv", nrows=nrows)
 
     #lowercase = lambda x: str(x).lower()
     #data.rename(lowercase, axis='columns', inplace=True)
