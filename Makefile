@@ -111,6 +111,21 @@ gcp_submit_training:
 		--region ${REGION} \
 		--stream-logs
 		
+docker_build:
+	docker build -t ${GCR_MULTI_REGION}/${PROJECT_ID}/docker_image_1 .
+
+docker_run:
+	docker run -it -e PORT=8000 -p 8000:8000 ${GCR_MULTI_REGION}/${PROJECT_ID}/docker_image_1 sh
+
+gcloud_run:
+	gcloud run deploy --image ${GCR_MULTI_REGION}/${PROJECT_ID}/$DOCKER_IMAGE_NAME --platform managed --region ${REGION}
+
+
+##### Prediction API - - - - - - - - - - - - - - - - - - - - - - - - -
+
+run_api:
+	uvicorn api.fast:app --reload  # load web server with code autoreload
+		
 
 download_model:
 	@gsutil cp  gs://${BUCKET_NAME}/models/taxifare/model.joblib google_model.joblib
