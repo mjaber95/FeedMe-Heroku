@@ -4,21 +4,38 @@ setuptools>=26
 twine
 wheel>=0.29
 
-# data science
-pandas>=1.1.4
-seaborn>=0.11.0
-scikit-learn==1.1.1
+# Base ----------------------------------------
 matplotlib>=3.2.2
 numpy>=1.18.5
+opencv-python>=4.1.1
+Pillow>=7.1.2
 PyYAML>=5.3.1
--f https://download.pytorch.org/whl/torch_stable.html
-torch==1.11.0+cpu
-opencv-python
-yolov5
-uvicorn
+requests>=2.23.0
+scipy>=1.4.1  # Google Colab version
+torch>=1.7.0
+torchvision>=0.8.1
+tqdm>=4.41.0
+protobuf<=3.20.1  # https://github.com/ultralytics/yolov5/issues/8012
+
+# Logging -------------------------------------
+tensorboard>=2.4.1
+# wandb
+
+# Plotting ------------------------------------
+pandas>=1.1.4
+seaborn>=0.11.0
+
+# Export --------------------------------------
+onnx>=1.9.0  # ONNX export
+onnx-simplifier>=0.3.6  # ONNX simplifier
+scikit-learn==0.19.2  # CoreML quantization
+
+
+
+
+
 
 
 # interface
 streamlit
 streamlit-modal
-

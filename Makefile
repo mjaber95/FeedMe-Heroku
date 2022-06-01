@@ -78,7 +78,7 @@ include ${CONFIG}
 
 run_locally:
 	@python -m ${PACKAGE_NAME}.${FILENAME}
-	
+
 yolo_train:
 	@python train.py --img 640 --cfg YOLOv5_model/yolov5s.yaml --hyp YOLOv5_model/hyp.scratch.yaml --batch 32 --epochs 100 --data YOLOv5_model/model_data.yaml --weights yolov5s.pt --workers 24 --name yolo_road_det
 
@@ -92,11 +92,11 @@ upload_data:
 	#@gsutil cp train_1k.csv gs://wagon-data-847-jaber/data/train_1k.csv
 	#@gsutil cp -r ${LOCAL_PATH} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
 	@gsutil cp -r ${RECIPES} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
-	
+
 upload_recipes_processed:
 	@gsutil cp -r ${RECIPES_PROCESSED} gs://${BUCKET_NAME}/${BUCKET_FOLDER}/${BUCKET_FILE_NAME}
-	
-	
+
+
 download_recipes:
 	#@mkdir raw_data/Recipes
 	@gsutil cp -r gs://${BUCKET_NAME}/${BUCKET_FOLDER}/raw_data/Recipes/ raw_data/
@@ -110,12 +110,18 @@ gcp_submit_training:
 		--runtime-version=${RUNTIME_VERSION} \
 		--region ${REGION} \
 		--stream-logs
-		
+
+# docker_build:
+# 	docker build -t ${GCR_MULTI_REGION}/${PROJECT_ID}/docker_image_1 .
+
 docker_build:
-	docker build -t ${GCR_MULTI_REGION}/${PROJECT_ID}/docker_image_1 .
+	docker build -f Dockerfile -t app:latest .
 
 docker_run:
-	docker run -it -e PORT=8000 -p 8000:8000 ${GCR_MULTI_REGION}/${PROJECT_ID}/docker_image_1 sh
+	docker run -p 8501:8501 app:latest
+
+# docker_run:
+# 	docker run -it -e PORT=8080 -p 8080:8080 ${GCR_MULTI_REGION}/${PROJECT_ID}/docker_image_1 sh
 
 gcloud_run:
 	gcloud run deploy --image ${GCR_MULTI_REGION}/${PROJECT_ID}/$DOCKER_IMAGE_NAME --platform managed --region ${REGION}
@@ -125,7 +131,7 @@ gcloud_run:
 
 run_api:
 	uvicorn api.fast:app --reload  # load web server with code autoreload
-		
+
 
 download_model:
 	@gsutil cp  gs://${BUCKET_NAME}/models/taxifare/model.joblib google_model.joblib

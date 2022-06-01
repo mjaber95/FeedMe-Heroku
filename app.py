@@ -48,6 +48,7 @@ if st.sidebar.button('Inspect my fridge!'):
 
 if st.sidebar.button('FeedMe'):
     data = load_data(1000)
+    ## Filter here ...
     df = data[ing_list].apply(lambda x: score(x, st.session_state.vector), axis=1)
     data["score"] = df["score"]
     data = data.sort_values(by="score", ascending=False)
