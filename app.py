@@ -1,13 +1,21 @@
 from unittest import result
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+import os
 import shutil
+import requests
 import numpy as np
+from urllib.error import URLError
 from PIL import Image
+import re
+import time
 import streamlit_modal as modal
 import streamlit.components.v1 as components
 import torch
-from FeedMe.utils import vector_output, score, load_data, load_image, ing_list
+from FeedMe.utils import vector_output, score, load_data, load_image, ing_list, vegfilter, difficulty, allergencheck
+from ast import literal_eval
+
 
 
 # Model for object detection
@@ -46,60 +54,71 @@ if st.sidebar.button('Inspect my fridge!'):
         st.session_state.vector = output_vector
 
 
+# Complexity filter
+complexity = st.sidebar.select_slider(
+     'Select maximum difficulty of the recipe',
+     options=['easy', 'medium', 'difficult', 'very difficult'])
+
+complexity_dict = {'easy' : 0, 'medium' : 1, 'difficult' : 2, 'very difficult' : 3}
+complexity_value = complexity_dict[complexity]
+
+prep_time = st.sidebar.slider('What maximum prep time do you want ?', 0, 1000, 120)
+
+# Diet filter
+diet= st.sidebar.radio(
+     "What's your diet",
+     ('Omnivore', 'Vegetarian', 'Vegan'))
+vegetarian = False
+vegan = False
+
+if diet == 'Vegetarian':
+    vegetarian = True
+if diet == 'Vegan':
+    vegan = True
+
+# Allergens filter
+allergens_list = ['egg','milk','cheese','mustard', 'peanut', 'soy', 'walnut', 'almond', 'hazelnut', 'pecan',
+       'cashew', 'pistachio', 'wheat']
+
+allergies = st.sidebar.multiselect(
+     'Select your allergies',
+     ['egg','milk','cheese','mustard', 'peanut', 'soy', 'walnut', 'almond', 'hazelnut', 'pecan',
+       'cashew', 'pistachio', 'wheat'])
+
+allergens_dict = {}
+for allergen in allergens_list:
+    if allergen in allergies:
+        allergens_dict[allergen] = True
+    else:
+        allergens_dict[allergen] = False
+
+
+
 if st.sidebar.button('FeedMe'):
-    data = load_data(1000)
-    ## Filter here ...
+    st.header("Chef's Choice:")
+    data = load_data(3000)
+    data = vegfilter(data,vegetarian,vegan)
+    data = difficulty(data,prep_time, complexity_value)
+    data = allergencheck(data, allergens_dict)
     df = data[ing_list].apply(lambda x: score(x, st.session_state.vector), axis=1)
     data["score"] = df["score"]
     data = data.sort_values(by="score", ascending=False)
     # Dataframe for troubleshooting
     # st.dataframe(data)
-    for row in data.head(1).iterrows():
-            one_image = row[1].Image_Name
-            recipe = row[1].Instructions
-            ingredient = row[1].Cleaned_Ingredients
-            st.session_state.recipe = recipe
-            st.session_state.ingredient = ingredient
 
-            st.image(load_image(f"raw_data/Recipes/Food Images/{one_image}.jpg"),width=500)
-
-
-            open_modal = st.button("Recipe of " + row[1].Title)
-            st.session_state.open_modal = open_modal
-
-    if st.session_state.open_modal:
-        modal.open()
-
-    if modal.is_open():
-        with modal.container():
-            html_string_0 = '''
-            <h2> Ingredients : </h2>
-
-            <script language="javascript">
-            document.querySelector("h1").style.color = "red";
-            </script>
-            '''
-            components.html(html_string_0)
-            ingredient= st.session_state.ingredient.split(',')
-
-            for index, line in enumerate( ingredient):
-                line = re.sub("[['!@#$]", '', line)
-                st.write((index +1) ,"-" ,line )
-
-            html_string = '''
-            <h2> Steps : </h2>
-
-            <script language="javascript">
-            document.querySelector("h1").style.color = "red";
-            </script>
-            '''
-            components.html(html_string)
-
-            recipe1=st.session_state.recipe.split('\n')
-            for index, line in enumerate( recipe1):
-                st.write((index +1) ,"-" ,line )
-
-
+if 'data' in locals():
+    row = data.head(1)
+    one_image = row.Image_Name.iloc[0]
+    recipe = row.Instructions.iloc[0]
+    ingredient = row['Ingredients'].apply(literal_eval).iloc[0]
+    st.session_state.recipe = recipe
+    st.session_state.ingredient = ingredient
+    st.image(load_image(f"raw_data/Recipes/Food Images/{one_image}.jpg"),width=500)
+    st.subheader('Ingredients:')
+    for i in ingredient:
+        st.write(i)
+    st.subheader('Instructions:')
+    st.write(recipe)
 
 
 
