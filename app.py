@@ -17,8 +17,7 @@ from FeedMe.utils import vector_output, score, load_data, load_image, ing_list, 
 from ast import literal_eval
 from PIL import Image
 
-st.session_state.inspection_status = False
-print(st.session_state.inspection_status)
+
 # Model for object detection
 model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
 inspection_status = False
@@ -32,8 +31,10 @@ image_file = st.sidebar.file_uploader(label = 'Please upload a picture of your f
 imageLocation = st.sidebar.empty()
  # check supported data for test
 
+
 if 'key' not in st.session_state:
     st.session_state['key'] = 'value'
+    st.session_state['click'] = 'value'
 
 
 if image_file is not None:
@@ -41,6 +42,7 @@ if image_file is not None:
 	#file_details = {"filename":image_file.name, "filetype":image_file.type,"filesize":image_file.size};
     # To View Uploaded Image
     imageLocation.image(load_image(image_file),width=300)
+
 
 if st.sidebar.button('Inspect my fridge!'):
     if image_file is  None:
@@ -60,6 +62,16 @@ if st.sidebar.button('Inspect my fridge!'):
         st.session_state.vector = output_vector
         st.session_state.image = image2
 
+
+
+m = st.markdown("""
+<style>
+div.stButton > button:first-child {
+    background-color: rgb(255, 204, 204);color:grey;font-size:20px;height:4em;width:15em;border-radius:7px 7px 7px 7px;;
+}
+</style>""", unsafe_allow_html=True)
+
+
 try:
     if image_file is not None:
         imageLocation.image(st.session_state.image, width=300)
@@ -71,7 +83,7 @@ try:
 
         complexity_dict = {'Easy' : 0, 'Medium' : 1, 'Difficult' : 2, 'Gordon Ramsay Tier' : 3}
         complexity_value = complexity_dict[complexity]
-        st.sidebar.subheader("Prep Time")
+        st.sidebar.subheader("Preparation Time")
         prep_time = st.sidebar.slider('When do you want to eat ? (in minutes)', 0, 600, 600, 15)
 
         # Diet filter
@@ -106,13 +118,12 @@ except:
     pass
 
 
-
 try:
     if image_file is not None:
         imageLocation.image(st.session_state.image, width=300)
         if st.sidebar.button('FeedMe'):
             st.header("Chef's Choice:")
-            data = load_data(3000)
+            data = load_data(3500)
             data = vegfilter(data,vegetarian,vegan)
             data = difficulty(data,prep_time, complexity_value)
             data = allergencheck(data, allergens_dict)
@@ -132,16 +143,24 @@ try:
             st.session_state.ingredient = ingredient
             st.subheader(row['Title'].iloc[0])
 
-
             st.image(load_image(f"raw_data/Recipes/Food Images/{one_image}.jpg"),width=600)
             expander = st.expander("Details")
             i=1
             prep_time=row["Prep Time Range"].iloc[0]
             complexe=row["complexity_label"].iloc[0]
-            meal_type=row["complexity_label"].iloc[0]
+            if row["vegetarian"].iloc[0] == 1:
+                veggie = 'Yes'
+            else:
+                veggie = 'No'
+            if row["vegan"].iloc[0] == 1:
+                vegan2 = 'Yes'
+            else:
+                vegan2 = 'No'
+
             expander.write(f"Preparation Time:  {prep_time} "  )
-            expander.write(f"Comlexity :   {complexe.capitalize()} ")
-            #expander.write(f"You are going to eat :   {diet} today !   ")
+            expander.write(f"Complexity :   {complexe.capitalize()} ")
+            expander.write(f"Vegetarian :   {veggie}")
+            expander.write(f"Vegan :   {vegan2}")
 
             st.subheader('Ingredients:')
             for index, line in enumerate( ingredient):

@@ -118,7 +118,7 @@ def vector_output(list_1):
     for i, ing in enumerate(V):
         if ing in list_1:
             if ing in meat_list:
-                V[i] = 5
+                V[i] = 10
             else:
                 V[i] = 1
         else:
